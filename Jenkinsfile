@@ -8,7 +8,7 @@ pipeline {
             steps {  
                 script {
                     // Tag the image with your Docker Hub username and build number
-                    def imageTag = "bigboss990/flaskapp:${BUILD_NUMBER}"
+                    def imageTag = "meghadocker126/flaskapp:${BUILD_NUMBER}"
                     sh "docker build -t ${imageTag} ."
                 }
             }
@@ -24,7 +24,7 @@ pipeline {
         stage('Push Image to Docker Hub') {
             steps {
                 script {
-                    def imageTag = "aishwarya0909/flaskapp:${BUILD_NUMBER}"
+                    def imageTag = "meghadocker126/flaskapp:${BUILD_NUMBER}"
                     sh "docker push ${imageTag}"
                 }
             }
