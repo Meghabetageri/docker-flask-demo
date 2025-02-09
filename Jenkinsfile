@@ -1,40 +1,48 @@
 pipeline {
-    agent any 
+    agent any
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhubID')  // Jenkins credentials ID
     }
-    stages { 
+    stages {
         stage('Build Docker Image') {
-            steps {  
+            steps {
                 script {
-                    // Tag the image with your Docker Hub username and build number
-                    def imageTag = "meghadocker126/flaskapp:${BUILD_NUMBER}"
-                    sh "docker build -t ${imageTag} ."
+                    try {
+                        def imageTag = "meghadocker126/flaskapp:${BUILD_NUMBER}"
+                        sh "docker build -t ${imageTag} ."
+                    } catch (Exception e) {
+                        error "Docker build failed: ${e.message}"
+                    }
                 }
             }
         }
         stage('Login to Docker Hub') {
             steps {
                 script {
-                    // Login to Docker Hub using the credentials from Jenkins
-                    sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                    try {
+                        sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                    } catch (Exception e) {
+                        error "Docker login failed: ${e.message}"
+                    }
                 }
             }
         }
         stage('Push Image to Docker Hub') {
             steps {
                 script {
-                    def imageTag = "meghadocker126/flaskapp:${BUILD_NUMBER}"
-                    sh "docker push ${imageTag}"
+                    try {
+                        def imageTag = "meghadocker126/flaskapp:${BUILD_NUMBER}"
+                        sh "docker push ${imageTag}"
+                    } catch (Exception e) {
+                        error "Docker push failed: ${e.message}"
+                    }
                 }
             }
         }
     }
     post {
         always {
-            // Ensure to logout of Docker Hub after the job is done
             sh 'docker logout'
         }
     }
 }
-
